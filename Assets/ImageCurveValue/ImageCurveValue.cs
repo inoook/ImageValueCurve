@@ -132,6 +132,51 @@ public class ImageCurveValue : MonoBehaviour {
         return v;
     }
 
+    RCFilter rCFilter;
+    public float EvaluateWithRCFilter(float time, float a = 0.5f)
+    {
+        float v = Evaluate(time);
+        if (rCFilter == null)
+        {
+            rCFilter = new RCFilter();
+            rCFilter.SetDefaultValue(v);
+        }
+        rCFilter.a = a;
+        v = rCFilter.GetFilteredValue(v);
+        return v;
+    }
+
+    /// <summary>
+    /// 前後の値の平均を使用した値を返す
+    /// Evaluates the avg.
+    /// </summary>
+    /// <returns>The avg.</returns>
+    /// <param name="time">Time.</param>
+    /// <param name="avgBufferPrev">Avg buffer previous.</param>
+    /// <param name="avgBufferNext">Avg buffer next.</param>
+    public float EvaluateWithAvg(float time, int avgBufferPrev, int avgBufferNext)
+    {
+        if (!isDisposeTexture)
+        {
+            LoadImage();
+        }
+
+        time = Mathf.Clamp01(time);
+        int index = Mathf.FloorToInt((values.Length - 1) * time);
+        int startIndex = Mathf.Clamp(index - avgBufferPrev, 0, values.Length - 1);
+        int endIndex = Mathf.Clamp(index + avgBufferNext, 0, values.Length - 1);
+
+        float v = 0;
+        int avgCount = endIndex - startIndex;
+        
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            v += values[i];
+        }
+        v /= avgCount;
+        return v;
+    }
+
     public Texture GetTexture()
     {
         LoadImage();
