@@ -1,0 +1,3 @@
+# ImageValueCurve
+
+グラフを定義した画像を読み込み、UnityのAnimationCurveの様に画像のグラフ値を使用する。
